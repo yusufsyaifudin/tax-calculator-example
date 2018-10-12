@@ -8,7 +8,7 @@ ADD . /go/src/github.com/yusufsyaifudin/tax-calculator-example
 WORKDIR /go/src/github.com/yusufsyaifudin/tax-calculator-example
 
 # delete the vendor directory to make sure that this docker images can successfully build from scratch without using host dependency
-RUN rm -rf vendor
+# RUN rm -rf vendor
 
 # run Makefile command
 RUN make install
