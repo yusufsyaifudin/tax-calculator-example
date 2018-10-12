@@ -1,5 +1,7 @@
 # TAX CALCULATOR EXAMPLE
 
+[![Build Status](https://travis-ci.org/yusufsyaifudin/tax-calculator-example.svg?branch=master)](https://travis-ci.org/yusufsyaifudin/tax-calculator-example)
+
 ## How to run
 You can easily run this by running using `docker-compose up` command. It will pull and run PostgreSQL too.
 

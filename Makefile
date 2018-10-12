@@ -2,6 +2,9 @@ PACKAGE_NAME := github.com/yusufsyaifudin/tax-calculator-example
 PROJECT_DIR := $(PWD)
 CURRENT_TIME := `date +%s`
 
+test:
+	go test -v -cover -race ./...
+
 # make create-migration NAME="create_users_table"
 create-migration:
 	@[ ! -z ${NAME} ] && echo assets/migrations/$(CURRENT_TIME)_${NAME}.sql
@@ -21,5 +24,3 @@ build:
 
 install: install-dep generate-doc build
 
-test:
-	go test -v -cover -race ./...
