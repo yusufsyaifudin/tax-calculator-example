@@ -3,12 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
-
-	"net/http/httptest"
-
-	"net/url"
 
 	"github.com/ory/dockertest"
 	"github.com/rs/zerolog"
@@ -250,5 +248,126 @@ func TestLoginEndpoint(t *testing.T) {
 			loginUsername := res["user"].(map[string]interface{})["username"].(string)
 			convey.So(loginUsername, convey.ShouldEqual, username)
 		})
+	})
+}
+
+func TestCreateAndGetTax(t *testing.T) {
+	convey.Convey("Create and Get Tax Test", t, func() {
+		refreshDB(dbDSNMaster)
+		const (
+			username = "john_doe"
+			password = "password"
+		)
+
+		formRegister := &url.Values{}
+		formRegister.Set("username", username)
+		formRegister.Set("password", password)
+		res, status, err := httpPost(apiV1RegisterURL, "", formRegister)
+
+		convey.So(err, convey.ShouldBeNil)
+		convey.So(status, convey.ShouldEqual, 200)
+
+		authToken := res["authentication_token"].(string)
+		convey.So(authToken, convey.ShouldNotEqual, "")
+
+		convey.Convey("Each tax type should return correct tax amount", func() {
+			const (
+				foodName    = "Big Mac"
+				foodTaxCode = 1
+				foodPrice   = 1000
+
+				tobaccoName  = "Lucky Stretch"
+				tobaccoCode  = 2
+				tobaccoPrice = 1000
+
+				entertainmentName  = "Movie"
+				entertainmentCode  = 3
+				entertainmentPrice = 150
+			)
+
+			taxFoodParam := &url.Values{}
+			taxFoodParam.Set("name", foodName)
+			taxFoodParam.Set("tax_code", fmt.Sprintf("%d", foodTaxCode))
+			taxFoodParam.Set("price", fmt.Sprintf("%d", foodPrice))
+			res, status, err := httpPost(apiV1CreateTaxURL, authToken, taxFoodParam)
+
+			foodTax := (float64(10) / float64(100)) * float64(foodPrice)
+			foodAmount := foodTax + float64(foodPrice)
+			foodExpectedResponse := map[string]interface{}{
+				"name":       foodName,
+				"tax_code":   float64(foodTaxCode),
+				"type":       "Food & Beverage",
+				"price":      float64(foodPrice),
+				"tax":        fmt.Sprintf("%2f", foodTax),
+				"amount":     fmt.Sprintf("%2f", foodAmount),
+				"refundable": true, // Food and Beverage is refundable
+			}
+
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(status, convey.ShouldEqual, 200)
+			convey.So(res, convey.ShouldResemble, foodExpectedResponse)
+
+			tobaccoParam := &url.Values{}
+			tobaccoParam.Set("name", tobaccoName)
+			tobaccoParam.Set("tax_code", fmt.Sprintf("%d", tobaccoCode))
+			tobaccoParam.Set("price", fmt.Sprintf("%d", tobaccoPrice))
+			res, status, err = httpPost(apiV1CreateTaxURL, authToken, tobaccoParam)
+
+			tobaccoTax := float64(10) + float64((float64(2)/float64(100))*float64(tobaccoPrice))
+			tobaccoAmount := tobaccoTax + float64(tobaccoPrice)
+			tobaccoExpectedResponse := map[string]interface{}{
+				"name":       tobaccoName,
+				"tax_code":   float64(tobaccoCode),
+				"type":       "Tobacco",
+				"price":      float64(tobaccoPrice),
+				"tax":        fmt.Sprintf("%2f", tobaccoTax),
+				"amount":     fmt.Sprintf("%2f", tobaccoAmount),
+				"refundable": false, // Tobacco is not refundable
+			}
+
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(status, convey.ShouldEqual, 200)
+			convey.So(res, convey.ShouldResemble, tobaccoExpectedResponse)
+
+			entertainmentParam := &url.Values{}
+			entertainmentParam.Set("name", entertainmentName)
+			entertainmentParam.Set("tax_code", fmt.Sprintf("%d", entertainmentCode))
+			entertainmentParam.Set("price", fmt.Sprintf("%d", entertainmentPrice))
+			res, status, err = httpPost(apiV1CreateTaxURL, authToken, entertainmentParam)
+
+			entertainmentTax := float64(1) / float64(100) * (float64(entertainmentPrice) - float64(100))
+			entertainmentAmount := entertainmentTax + float64(entertainmentPrice)
+			entertainmentExpectedResponse := map[string]interface{}{
+				"name":       entertainmentName,
+				"tax_code":   float64(entertainmentCode),
+				"type":       "Entertainment",
+				"price":      float64(entertainmentPrice),
+				"tax":        fmt.Sprintf("%2f", entertainmentTax),
+				"amount":     fmt.Sprintf("%2f", entertainmentAmount),
+				"refundable": false, // Entertainment is not refundable
+			}
+
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(status, convey.ShouldEqual, 200)
+			convey.So(res, convey.ShouldResemble, entertainmentExpectedResponse)
+
+			// the last inserted must be on top (desc)
+			taxesExpectedResponse := []interface{}{
+				entertainmentExpectedResponse,
+				tobaccoExpectedResponse,
+				foodExpectedResponse,
+			}
+
+			res, status, err = httpGet(apiV1CreateTaxURL, authToken, &url.Values{})
+			convey.So(err, convey.ShouldBeNil)
+			convey.So(status, convey.ShouldEqual, 200)
+			convey.So(res, convey.ShouldResemble, map[string]interface{}{
+				"price_sub_total": float64(foodPrice + tobaccoPrice + entertainmentPrice),
+				"tax_sub_total":   fmt.Sprintf("%2f", float64(foodTax+tobaccoTax+entertainmentTax)),
+				"grand_total":     fmt.Sprintf("%2f", float64(foodAmount+tobaccoAmount+entertainmentAmount)),
+				"taxes":           taxesExpectedResponse,
+			})
+		})
+
 	})
 }
