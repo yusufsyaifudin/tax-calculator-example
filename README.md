@@ -155,4 +155,4 @@ Response example:
 ```
 
 ## Documentation
-You can access the Swagger documentation which generated on the fly using [https://github.com/swaggo/swag](https://github.com/swaggo/swag) in `/swagger/index.html`.
+You can access the Swagger documentation which generated on the fly using [https://github.com/swaggo/swag](https://github.com/swaggo/swag) in [http://localhost/swagger/index.html](http://localhost/swagger/index.html).
