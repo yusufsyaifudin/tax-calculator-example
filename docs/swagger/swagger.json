@@ -1,0 +1,391 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample API to generate tax foreach user.",
+        "title": "Tax Calculator Example",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/login": {
+            "post": {
+                "description": "Login using username and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Login account",
+                "operationId": "user-login",
+                "parameters": [
+                    {
+                        "description": "user info",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/reqpayload.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Login"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Register new account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Register new account",
+                "operationId": "user-register",
+                "parameters": [
+                    {
+                        "description": "user info",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/reqpayload.Register"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Register"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/tax": {
+            "get": {
+                "description": "Get taxes related to current user. Tax calculation is based on following calculation rule: 1. Food and Beverage: 10% of Price, for example if the price is 1000 then the tax is 100, hence the amount is 1100. 2. Tobacco: 10 + (2% of Price), for example if the price is 1000 then the tax is 10 + (2% * 1000) = 10 + 20 = 30, hence the amount is 1030. 3. Entertainment: if the price is equal or more than 100 is 1% of (Price - 100), otherwise is free. For instance, if the price is 150, then the tax is 1% * (150-100) = 1% * 50 = 0.5, hence the final amount is 150.5.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get taxes related to current user",
+                "operationId": "get-taxes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication-Token your-token",
+                        "name": "Authentication-Token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.TaxesForCurrentUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add tax record to your account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Add tax record to your account",
+                "operationId": "create-tax",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication-Token your-token",
+                        "name": "Authentication-Token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "tax info",
+                        "name": "tax",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/reqpayload.CreateNewTax"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Tax"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/respayload.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "reqpayload.CreateNewTax": {
+            "type": "object",
+            "required": [
+                "name",
+                "tax_code",
+                "price"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Big Mac"
+                },
+                "price": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "tax_code": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "reqpayload.Login": {
+            "type": "object",
+            "required": [
+                "username",
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "secret"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "john_doe"
+                }
+            }
+        },
+        "reqpayload.Register": {
+            "type": "object",
+            "required": [
+                "username",
+                "password"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "secret"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "john_doe"
+                }
+            }
+        },
+        "respayload.Error": {
+            "type": "object",
+            "properties": {
+                "error_code": {
+                    "type": "string"
+                },
+                "http_status_code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "respayload.Login": {
+            "type": "object",
+            "properties": {
+                "authentication_token": {
+                    "type": "string",
+                    "example": "abc"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/respayload.User"
+                }
+            }
+        },
+        "respayload.Register": {
+            "type": "object",
+            "properties": {
+                "authentication_token": {
+                    "type": "string",
+                    "example": "abc"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/respayload.User"
+                }
+            }
+        },
+        "respayload.Tax": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string",
+                    "example": "1100"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Big Mac"
+                },
+                "price": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "refundable": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "tax": {
+                    "type": "string",
+                    "example": "100"
+                },
+                "tax_code": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "Food and Beverage"
+                }
+            }
+        },
+        "respayload.TaxesForCurrentUser": {
+            "type": "object",
+            "properties": {
+                "grand_total": {
+                    "type": "string",
+                    "example": "2270.5"
+                },
+                "price_sub_total": {
+                    "type": "integer",
+                    "example": 2150
+                },
+                "tax_sub_total": {
+                    "type": "string",
+                    "example": "120.5"
+                },
+                "taxes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/respayload.Tax"
+                    }
+                }
+            }
+        },
+        "respayload.User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "john_doe"
+                }
+            }
+        }
+    }
+}

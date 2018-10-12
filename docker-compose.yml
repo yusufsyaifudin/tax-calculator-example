@@ -1,0 +1,45 @@
+version: '2.1'
+services:
+  tax-calculator-server:
+    build: .
+    restart: on-failure
+    ports:
+      - '9000:9000'
+    depends_on:
+      postgresql-master:
+        condition: service_started
+      postgresql-slave:
+        condition: service_started
+    environment:
+      - ADDRESS=0.0.0.0:9000
+      - DEBUG=true
+      - DB_SYNC_MIGRATION=true
+      - DB_MASTER_URL=postgres://my_user:my_password@postgresql-master/my_database?sslmode=disable
+      - DB_SLAVES_URL=postgres://my_user:my_password@postgresql-slave/my_database?sslmode=disable
+
+  postgresql-master:
+    image: 'bitnami/postgresql:10.5.0-debian-9'
+    restart: on-failure
+    ports:
+      - '32820:5432'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_USERNAME=my_user
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_DATABASE=my_database
+
+  postgresql-slave:
+    image: 'bitnami/postgresql:10.5.0-debian-9'
+    restart: on-failure
+    ports:
+      - '32821:5432'
+    depends_on:
+      - postgresql-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432

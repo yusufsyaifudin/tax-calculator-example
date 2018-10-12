@@ -1,0 +1,279 @@
+basePath: /api/v1
+definitions:
+  reqpayload.CreateNewTax:
+    properties:
+      name:
+        example: Big Mac
+        type: string
+      price:
+        example: 1000
+        type: integer
+      tax_code:
+        example: 1
+        type: integer
+    required:
+    - name
+    - tax_code
+    - price
+    type: object
+  reqpayload.Login:
+    properties:
+      password:
+        example: secret
+        type: string
+      username:
+        example: john_doe
+        type: string
+    required:
+    - username
+    - password
+    type: object
+  reqpayload.Register:
+    properties:
+      password:
+        example: secret
+        type: string
+      username:
+        example: john_doe
+        type: string
+    required:
+    - username
+    - password
+    type: object
+  respayload.Error:
+    properties:
+      error_code:
+        type: string
+      http_status_code:
+        type: integer
+      message:
+        type: string
+    type: object
+  respayload.Login:
+    properties:
+      authentication_token:
+        example: abc
+        type: string
+      user:
+        $ref: '#/definitions/respayload.User'
+        type: object
+    type: object
+  respayload.Register:
+    properties:
+      authentication_token:
+        example: abc
+        type: string
+      user:
+        $ref: '#/definitions/respayload.User'
+        type: object
+    type: object
+  respayload.Tax:
+    properties:
+      amount:
+        example: "1100"
+        type: string
+      name:
+        example: Big Mac
+        type: string
+      price:
+        example: 1000
+        type: integer
+      refundable:
+        example: false
+        type: boolean
+      tax:
+        example: "100"
+        type: string
+      tax_code:
+        type: integer
+      type:
+        example: Food and Beverage
+        type: string
+    type: object
+  respayload.TaxesForCurrentUser:
+    properties:
+      grand_total:
+        example: "2270.5"
+        type: string
+      price_sub_total:
+        example: 2150
+        type: integer
+      tax_sub_total:
+        example: "120.5"
+        type: string
+      taxes:
+        items:
+          $ref: '#/definitions/respayload.Tax'
+        type: array
+    type: object
+  respayload.User:
+    properties:
+      id:
+        example: 1
+        type: integer
+      username:
+        example: john_doe
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample API to generate tax foreach user.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Tax Calculator Example
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login using username and password
+      operationId: user-login
+      parameters:
+      - description: user info
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/reqpayload.Login'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/respayload.Login'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+      summary: Login account
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register new account
+      operationId: user-register
+      parameters:
+      - description: user info
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/reqpayload.Register'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/respayload.Register'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+      summary: Register new account
+  /tax:
+    get:
+      consumes:
+      - application/json
+      description: 'Get taxes related to current user. Tax calculation is based on
+        following calculation rule: 1. Food and Beverage: 10% of Price, for example
+        if the price is 1000 then the tax is 100, hence the amount is 1100. 2. Tobacco:
+        10 + (2% of Price), for example if the price is 1000 then the tax is 10 +
+        (2% * 1000) = 10 + 20 = 30, hence the amount is 1030. 3. Entertainment: if
+        the price is equal or more than 100 is 1% of (Price - 100), otherwise is free.
+        For instance, if the price is 150, then the tax is 1% * (150-100) = 1% * 50
+        = 0.5, hence the final amount is 150.5.'
+      operationId: get-taxes
+      parameters:
+      - description: Authentication-Token your-token
+        in: header
+        name: Authentication-Token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/respayload.TaxesForCurrentUser'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+      summary: Get taxes related to current user
+    post:
+      consumes:
+      - application/json
+      description: Add tax record to your account
+      operationId: create-tax
+      parameters:
+      - description: Authentication-Token your-token
+        in: header
+        name: Authentication-Token
+        required: true
+        type: string
+      - description: tax info
+        in: body
+        name: tax
+        required: true
+        schema:
+          $ref: '#/definitions/reqpayload.CreateNewTax'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/respayload.Tax'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/respayload.Error'
+            type: object
+      summary: Add tax record to your account
+swagger: "2.0"
