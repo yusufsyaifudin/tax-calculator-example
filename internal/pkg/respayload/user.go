@@ -20,7 +20,7 @@ type Register struct {
 // This to make every User object is consistent in every response, since I know that it is painful in the client side,
 // if we return inconsistent structure for the same object.
 // I mean, in endpoint A, User model only return id, which in endpoint B, User model return id and username. It's hard to parse.
-// So, this struct is intented to avoid that inconsistency.
+// So, this struct is intended to avoid that inconsistency.
 type User struct {
 	ID       int64  `json:"id" example:"1"`
 	Username string `json:"username" example:"john_doe"`
