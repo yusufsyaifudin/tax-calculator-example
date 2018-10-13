@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	serverAddr = flag.String("address", "localhost:8080", "Address and port to bind")
+	serverAddr = flag.String("address", "localhost:9000", "Address and port to bind")
 	debug      = flag.Bool("debug", false, "Print log")
 
 	dbSyncMigration = flag.Bool("db-sync-migration", false, "To sync database structure")
