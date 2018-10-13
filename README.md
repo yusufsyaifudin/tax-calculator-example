@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/yusufsyaifudin/tax-calculator-example.svg?branch=master)](https://travis-ci.org/yusufsyaifudin/tax-calculator-example)
 [![codecov](https://codecov.io/gh/yusufsyaifudin/tax-calculator-example/branch/master/graph/badge.svg)](https://codecov.io/gh/yusufsyaifudin/tax-calculator-example)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yusufsyaifudin/tax-calculator-example)](https://goreportcard.com/report/github.com/yusufsyaifudin/tax-calculator-example)
+
 
 #### [View on Sourcegraph](https://sourcegraph.com/github.com/yusufsyaifudin/tax-calculator-example)
 

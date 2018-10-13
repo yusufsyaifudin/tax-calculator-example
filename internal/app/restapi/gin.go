@@ -56,30 +56,38 @@ func newGinRequest(gCtx *gin.Context) Request {
 	}
 }
 
+// Bind will bind the request parameter (query, post form or raw body) into out variable, which can be struct.
 func (r *ginRequest) Bind(out interface{}) error {
 	return r.gCtx.Bind(out)
 }
 
+// Header will get the header values of current request.
 func (r *ginRequest) Header() http.Header {
 	return r.gCtx.Request.Header
 }
 
+// ContentType will return the content type of the request.
 func (r *ginRequest) ContentType() string {
 	return r.gCtx.ContentType()
 }
 
+// RawRequest will returns the raw request payload, so we gan get the header or etc here.
 func (r *ginRequest) RawRequest() *http.Request {
 	return r.gCtx.Request
 }
 
+// GetParam will get url parameter, for example on URL /api/:user_name, we can get user_name value by calling
+// GetParam("user_name").
 func (r *ginRequest) GetParam(key string) string {
 	return r.gCtx.Param(key)
 }
 
+// User get current user of this request.
 func (r *ginRequest) User() *model.User {
 	return r.user
 }
 
+// SetUser sets the current user based on authentication token. This usually set in middleware.
 func (r *ginRequest) SetUser(user *model.User) {
 	r.user = user
 }

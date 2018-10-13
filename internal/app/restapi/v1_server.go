@@ -11,9 +11,12 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+
+	// This package must be imported to make swaggerFiles working.
 	_ "github.com/yusufsyaifudin/tax-calculator-example/docs"
 )
 
+// Config is an configuration needed by this restapi Server to run.
 type Config struct {
 	Address string
 	Test    bool
@@ -23,6 +26,7 @@ var conf *Config
 var logger = log.With().Str("pkg", "restapi").Caller().Logger()
 var stopped = false
 
+// Router is a gin.Engine type. This exported because we need to run a httptest server in integration test (main_test.go).
 var Router *gin.Engine
 
 // init will initiating some logic when this file is called.
@@ -32,6 +36,7 @@ func init() {
 	Router.Use(middleware())
 }
 
+// Configure will start a listener to HTTP.
 // @title Tax Calculator Example
 // @version 1.0
 // @description This is a sample API to generate tax foreach user.
@@ -41,7 +46,6 @@ func init() {
 
 // @host localhost:8080
 // @BasePath /api/v1
-// Configure will start a listener to HTTP.
 func Configure(config *Config) {
 	conf = config
 

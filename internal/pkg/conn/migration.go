@@ -7,8 +7,10 @@ import (
 
 	"github.com/go-pg/pg"
 	"github.com/gobuffalo/packr"
-	_ "github.com/lib/pq"
 	"github.com/rubenv/sql-migrate"
+
+	// is a driver needed by sql.Open to connect to postgresql.
+	_ "github.com/lib/pq"
 )
 
 // MigrateSync will sync all database structure from migration file to postgres.
