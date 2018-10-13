@@ -1,5 +1,6 @@
 package respayload
 
+// ErrorCode is a type to make every error in the request can be tracked easily.
 type ErrorCode string
 
 // Follow this rule: first number is the entity number:
@@ -21,6 +22,8 @@ const (
 	ErrorCodeTaxDBError       ErrorCode = "2_0002"
 )
 
+// Error is a response structure when the server cannot fulfill the request (non 200 http status).
+// This also to make sure that the response in every request is consistent.
 type Error struct {
 	HttpStatusCode int       `json:"http_status_code"` // net/http status error code
 	ErrorCode      ErrorCode `json:"error_code"`

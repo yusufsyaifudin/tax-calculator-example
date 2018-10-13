@@ -30,6 +30,13 @@ var stopped = false
 var Router *gin.Engine
 
 // init will initiating some logic when this file is called.
+// @title Tax Calculator Example
+// @version 1.0
+// @description This is a sample API to generate tax foreach user.
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @BasePath /api/v1
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	Router = gin.New()
@@ -37,15 +44,6 @@ func init() {
 }
 
 // Configure will start a listener to HTTP.
-// @title Tax Calculator Example
-// @version 1.0
-// @description This is a sample API to generate tax foreach user.
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:8080
-// @BasePath /api/v1
 func Configure(config *Config) {
 	conf = config
 
